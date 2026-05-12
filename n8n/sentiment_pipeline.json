@@ -1,0 +1,199 @@
+{
+  "name": "SentinelAI — Brand Mention Ingestion Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "hours", "hoursInterval": 6 }]
+        }
+      },
+      "id": "node-schedule-trigger",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300],
+      "notes": "Runs every 6 hours. Adjust interval for real-time needs."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Simulate fetching mentions from Twitter/X API\n// In production: replace with HTTP Request node hitting Twitter API v2\nconst brands = ['Nike', 'Tesla', 'Apple'];\nconst sources = ['Twitter'];\nconst now = new Date();\n\nconst tweets = [];\nfor (const brand of brands) {\n  for (let i = 0; i < 5; i++) {\n    tweets.push({\n      id: `tw-${Date.now()}-${brand}-${i}`,\n      brand,\n      source: 'Twitter',\n      author: `user_${Math.floor(Math.random() * 9999)}`,\n      text: `Sample tweet mentioning ${brand} - item ${i}`,\n      timestamp: now.toISOString(),\n      region: 'US',\n      language: 'en',\n      engagement: Math.floor(Math.random() * 1000),\n      url: `https://twitter.com/user/status/${Date.now()}${i}`\n    });\n  }\n}\nreturn tweets.map(t => ({ json: t }));",
+        "mode": "runOnceForAllItems"
+      },
+      "id": "node-twitter-source",
+      "name": "Twitter / X Source",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 160],
+      "notes": "Simulated. Replace jsCode body with HTTP Request to Twitter API v2 search/recent endpoint using Bearer Token."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Simulate fetching Reddit posts via Reddit API (OAuth2)\n// In production: replace with HTTP Request node to https://oauth.reddit.com/search\nconst brands = ['Nike', 'Tesla', 'Apple'];\nconst subreddits = ['technology', 'apple', 'teslamotors', 'nike', 'hardware'];\nconst now = new Date();\n\nconst posts = [];\nfor (const brand of brands) {\n  for (let i = 0; i < 4; i++) {\n    posts.push({\n      id: `rd-${Date.now()}-${brand}-${i}`,\n      brand,\n      source: 'Reddit',\n      author: `redditor_${Math.floor(Math.random() * 9999)}`,\n      text: `Reddit post about ${brand} from r/${subreddits[Math.floor(Math.random() * subreddits.length)]}`,\n      timestamp: now.toISOString(),\n      region: 'US',\n      language: 'en',\n      engagement: Math.floor(Math.random() * 500),\n      url: `https://reddit.com/r/tech/comments/${Date.now()}${i}`\n    });\n  }\n}\nreturn posts.map(p => ({ json: p }));",
+        "mode": "runOnceForAllItems"
+      },
+      "id": "node-reddit-source",
+      "name": "Reddit Source",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 300],
+      "notes": "Simulated. Replace with HTTP Request node to Reddit Search API. Requires Reddit OAuth2 credentials."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Simulate fetching news articles via NewsAPI or RSS\n// In production: replace with HTTP Request to https://newsapi.org/v2/everything\nconst brands = ['Nike', 'Tesla', 'Apple'];\nconst now = new Date();\n\nconst articles = [];\nfor (const brand of brands) {\n  for (let i = 0; i < 3; i++) {\n    articles.push({\n      id: `nw-${Date.now()}-${brand}-${i}`,\n      brand,\n      source: 'News',\n      author: `journalist_${Math.floor(Math.random() * 999)}`,\n      text: `News article headline and excerpt about ${brand} — covering recent developments.`,\n      timestamp: now.toISOString(),\n      region: 'US',\n      language: 'en',\n      engagement: Math.floor(Math.random() * 2000),\n      url: `https://news.example.com/article/${Date.now()}${i}`\n    });\n  }\n}\nreturn articles.map(a => ({ json: a }));",
+        "mode": "runOnceForAllItems"
+      },
+      "id": "node-news-source",
+      "name": "News / RSS Source",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 440],
+      "notes": "Simulated. Replace with HTTP Request to NewsAPI or an RSS Feed node. Supports any RSS/Atom feed URL."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Simulate blog and review mentions\n// In production: scrape via HTTP Request + HTML Extract node\nconst brands = ['Nike', 'Tesla', 'Apple'];\nconst now = new Date();\n\nconst items = [];\nfor (const brand of brands) {\n  items.push({\n    id: `bl-${Date.now()}-${brand}`,\n    brand,\n    source: 'Blog',\n    author: `blogger_${Math.floor(Math.random() * 999)}`,\n    text: `Blog review post discussing ${brand} product experience in detail.`,\n    timestamp: now.toISOString(),\n    region: 'UK',\n    language: 'en',\n    engagement: Math.floor(Math.random() * 300),\n    url: `https://blog.example.com/${brand.toLowerCase()}-review`\n  });\n  items.push({\n    id: `rv-${Date.now()}-${brand}`,\n    brand,\n    source: 'Review',\n    author: `reviewer_${Math.floor(Math.random() * 999)}`,\n    text: `Customer review of ${brand} posted on review platform.`,\n    timestamp: now.toISOString(),\n    region: 'AU',\n    language: 'en',\n    engagement: Math.floor(Math.random() * 150),\n    url: `https://reviews.example.com/${brand.toLowerCase()}`\n  });\n}\nreturn items.map(i => ({ json: i }));",
+        "mode": "runOnceForAllItems"
+      },
+      "id": "node-blog-review-source",
+      "name": "Blog & Review Source",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 580],
+      "notes": "Simulated. Replace with HTTP Request + HTML Extract nodes for blog scraping, or connect to G2/Trustpilot APIs."
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "mergeByPosition",
+        "options": {}
+      },
+      "id": "node-merge",
+      "name": "Merge All Sources",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [720, 370],
+      "notes": "Merges mentions from all 4 sources into a single unified stream."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Deduplication — remove mentions with duplicate IDs\n// In production: compare against database of already-processed IDs\nconst seen = new Set();\nconst unique = [];\nfor (const item of $input.all()) {\n  const id = item.json.id;\n  if (!seen.has(id)) {\n    seen.add(id);\n    unique.push(item);\n  }\n}\nconsole.log(`Deduplication: ${$input.all().length} in -> ${unique.length} out`);\nreturn unique;",
+        "mode": "runOnceForAllItems"
+      },
+      "id": "node-deduplicate",
+      "name": "Deduplicate",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [960, 370],
+      "notes": "Removes duplicate mention IDs. In production, cross-reference against a database table of processed IDs."
+    },
+    {
+      "parameters": {
+        "language": "en",
+        "options": {}
+      },
+      "id": "node-language-filter",
+      "name": "Language Filter",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [1200, 370],
+      "notes": "Filter to supported languages. Extend with translation node (DeepL/Google Translate) for multilingual support.",
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": false, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "lang-check",
+              "leftValue": "={{ $json.language }}",
+              "rightValue": "en",
+              "operator": { "type": "string", "operation": "equals" }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "command": "cd /app/classifier && python classify.py --input /app/data/mentions_raw.csv --output /app/data/mentions_classified.json"
+      },
+      "id": "node-classifier",
+      "name": "HuggingFace Classifier",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [1440, 370],
+      "notes": "Runs classify.py which uses:\n- Model 1: cardiffnlp/twitter-roberta-base-sentiment-latest (sentiment)\n- Model 2: facebook/bart-large-mnli (zero-shot topics)\nAdjust path to match your deployment environment."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Read the classified JSON output and parse results\nconst fs = require('fs');\nconst outputPath = '/app/data/mentions_classified.json';\n\ntry {\n  const raw = fs.readFileSync(outputPath, 'utf8');\n  const classified = JSON.parse(raw);\n  console.log(`Loaded ${classified.length} classified mentions`);\n  return classified.map(m => ({ json: m }));\n} catch (e) {\n  console.error('Failed to read classified output:', e.message);\n  return [{ json: { error: e.message } }];\n}",
+        "mode": "runOnceForAllItems"
+      },
+      "id": "node-load-results",
+      "name": "Load Classified Results",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1680, 370],
+      "notes": "Reads the JSON output from the classifier script."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Alert detection — flag negative spikes and crisis mentions\nconst mentions = $input.all().map(i => i.json);\nconst alerts = [];\nconst brands = [...new Set(mentions.map(m => m.brand))];\n\nfor (const brand of brands) {\n  const brandMentions = mentions.filter(m => m.brand === brand);\n  const negative = brandMentions.filter(m => m.sentiment === 'negative');\n  const crisis = brandMentions.filter(m => m.is_crisis === true || m.is_crisis === 'true');\n\n  // Crisis alert\n  if (crisis.length > 0) {\n    alerts.push({\n      type: 'crisis',\n      brand,\n      severity: 'critical',\n      message: `${crisis.length} crisis-level mention(s) detected for ${brand}`,\n      count: crisis.length\n    });\n  }\n\n  // Negative spike (simple threshold for N8N — full baseline logic is in analytics.ts)\n  if (negative.length >= 5) {\n    alerts.push({\n      type: 'negative_spike',\n      brand,\n      severity: negative.length >= 10 ? 'high' : 'medium',\n      message: `Negative spike: ${negative.length} negative mentions for ${brand} in this batch`,\n      count: negative.length\n    });\n  }\n}\n\nconsole.log(`Generated ${alerts.length} alert(s)`);\nreturn alerts.length > 0\n  ? alerts.map(a => ({ json: a }))\n  : [{ json: { status: 'no_alerts' } }];",
+        "mode": "runOnceForAllItems"
+      },
+      "id": "node-alert-detection",
+      "name": "Alert Detection",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1920, 300],
+      "notes": "Detects crisis signals and negative spikes. In production, send results to Slack, email, or PagerDuty via notification nodes."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Write final classified mentions to the data file read by the Next.js app\n// In production: insert into PostgreSQL/MongoDB instead\nconst fs = require('fs');\nconst mentions = $input.all().map(i => i.json);\nconst outputPath = '/app/data/mentions_classified.json';\n\ntry {\n  fs.writeFileSync(outputPath, JSON.stringify(mentions, null, 2), 'utf8');\n  console.log(`Wrote ${mentions.length} mentions to ${outputPath}`);\n  return [{ json: { status: 'success', count: mentions.length, path: outputPath } }];\n} catch (e) {\n  return [{ json: { status: 'error', message: e.message } }];\n}",
+        "mode": "runOnceForAllItems"
+      },
+      "id": "node-write-output",
+      "name": "Write to Data Store",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1920, 440],
+      "notes": "Writes output to mentions_classified.json. In production: replace with PostgreSQL Insert or MongoDB node."
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [[
+        { "node": "Twitter / X Source",    "type": "main", "index": 0 },
+        { "node": "Reddit Source",         "type": "main", "index": 0 },
+        { "node": "News / RSS Source",     "type": "main", "index": 0 },
+        { "node": "Blog & Review Source",  "type": "main", "index": 0 }
+      ]]
+    },
+    "Twitter / X Source":   { "main": [[{ "node": "Merge All Sources", "type": "main", "index": 0 }]] },
+    "Reddit Source":        { "main": [[{ "node": "Merge All Sources", "type": "main", "index": 1 }]] },
+    "News / RSS Source":    { "main": [[{ "node": "Merge All Sources", "type": "main", "index": 2 }]] },
+    "Blog & Review Source": { "main": [[{ "node": "Merge All Sources", "type": "main", "index": 3 }]] },
+    "Merge All Sources":    { "main": [[{ "node": "Deduplicate",       "type": "main", "index": 0 }]] },
+    "Deduplicate":          { "main": [[{ "node": "Language Filter",   "type": "main", "index": 0 }]] },
+    "Language Filter":      { "main": [[{ "node": "HuggingFace Classifier", "type": "main", "index": 0 }]] },
+    "HuggingFace Classifier": { "main": [[{ "node": "Load Classified Results", "type": "main", "index": 0 }]] },
+    "Load Classified Results": {
+      "main": [[
+        { "node": "Alert Detection",  "type": "main", "index": 0 },
+        { "node": "Write to Data Store", "type": "main", "index": 0 }
+      ]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "staticData": null,
+  "tags": ["sentiment", "brand-monitoring", "nlp"],
+  "meta": {
+    "instanceId": "sentinelai-prototype",
+    "templateCredsSetupCompleted": false
+  }
+}
