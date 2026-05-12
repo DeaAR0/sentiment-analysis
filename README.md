@@ -1,7 +1,6 @@
 # SentinelAI — AI Sentiment Analysis Platform for Brand Monitoring
 
-> An AI-powered brand intelligence platform that monitors public conversation across digital channels, detects sentiment shifts in real time, and helps teams triage reputation risks before they escalate.
-
+> **Documentation:** See `Document.docx` for the full documentation report.
 ---
 
 ## Overview
